@@ -28,4 +28,6 @@ router.get('/categories', adminController.getCategories);
 router.post('/categories', adminController.createCategory);
 
 // Audit Logs
-rout
+router.get('/audit-logs', adminController.getAuditLogs);
+
+module.exports = router;

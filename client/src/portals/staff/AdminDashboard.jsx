@@ -15,6 +15,8 @@ import {
   Activity,
 } from 'lucide-react';
 
+import { ComplaintsAnalyticsMountPoint } from './ComplaintsAnalyticsMountPoint';
+
 export function AdminDashboard({ activeTab = 'stats' }) {
   const [stats, setStats] = useState(null);
   const [blocks, setBlocks] = useState([]);
@@ -46,7 +48,9 @@ export function AdminDashboard({ activeTab = 'stats' }) {
     role: 'maintenance',
     staffIdNumber: '',
     fullName: '',
-    department: 'Maintenance',
+    department: 'Facility Maintenance',
+    specialisations: ['Plumbing & Water Supply'],
+    isActive: true,
   });
 
   async function loadData() {
@@ -326,18 +330,44 @@ export function AdminDashboard({ activeTab = 'stats' }) {
               </button>
             </div>
             <div className="grid-2">
-              {staffList.map(st => (
-                <div key={st.id} style={{ padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: '700' }}>{st.full_name}</div>
-                    <span className="badge badge-role">{st.role}</span>
+              {staffList.map(st => {
+                const specs = typeof st.specialisations === 'string'
+                  ? JSON.parse(st.specialisations)
+                  : (st.specialisations || []);
+                return (
+                  <div key={st.id} style={{ padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: '700' }}>{st.full_name}</div>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <span className={`badge ${st.is_active ? 'badge-approved' : 'badge-rejected'}`} style={{ fontSize: '0.65rem' }}>
+                          {st.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                        <span className="badge badge-role">{st.role}</span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                      Dept: {st.department} | Staff ID: {st.staff_id_number}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{st.email} • {st.phone}</div>
+
+                    {/* Specialisations for maintenance auto-suggestion */}
+                    {st.role === 'maintenance' && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Specialises in:</span>
+                        {specs.length > 0 ? (
+                          specs.map(sp => (
+                            <span key={sp} style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.15)', color: '#a5b4fc', padding: '1px 6px', borderRadius: '4px' }}>
+                              {sp}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>General Maintenance</span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                    Dept: {st.department} | Staff ID: {st.staff_id_number}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{st.email} • {st.phone}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -392,6 +422,11 @@ export function AdminDashboard({ activeTab = 'stats' }) {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Tab: Complaints Analytics Shell Mount Point for Teammate */}
+      {activeTab === 'complaints' && (
+        <ComplaintsAnalyticsMountPoint />
       )}
 
       {/* Block Create Modal */}
@@ -649,6 +684,48 @@ export function AdminDashboard({ activeTab = 'stats' }) {
                   />
                 </div>
               </div>
+
+              {/* Maintenance Specialisations & Active Flag */}
+              {newStaff.role === 'maintenance' && (
+                <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--accent-blue)', marginBottom: '0.5rem' }}>
+                    Maintenance Specialisation Categories (For Auto-Dispatch)
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.4rem' }}>
+                    {['Plumbing & Water Supply', 'Electrical & Lighting', 'Carpentry & Furniture', 'Wi-Fi & LAN Network', 'Room & Floor Hygiene'].map(cat => {
+                      const checked = (newStaff.specialisations || []).includes(cat);
+                      return (
+                        <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', cursor: 'pointer', color: checked ? '#93c5fd' : 'var(--text-secondary)' }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={e => {
+                              const curr = newStaff.specialisations || [];
+                              const updated = e.target.checked ? [...curr, cat] : curr.filter(c => c !== cat);
+                              setNewStaff(prev => ({ ...prev, specialisations: updated }));
+                            }}
+                            style={{ accentColor: 'var(--accent-indigo)' }}
+                          />
+                          {cat}
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      id="staffActiveToggle"
+                      checked={newStaff.isActive !== false}
+                      onChange={e => setNewStaff(prev => ({ ...prev, isActive: e.target.checked }))}
+                      style={{ accentColor: 'var(--accent-emerald)', width: '16px', height: '16px' }}
+                    />
+                    <label htmlFor="staffActiveToggle" style={{ fontSize: '0.8rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                      Mark Technician as <b>Active</b> for complaint assignment
+                    </label>
+                  </div>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowStaffModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Create Account</button>

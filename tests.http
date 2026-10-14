@@ -147,3 +147,7 @@ Content-Type: application/json
 ### 20. Admin Audit Logs
 GET {{baseUrl}}/admin/audit-logs
 Authorization: Bearer {{adminToken}}
+
+### 21. Query Maintenance Auto-Assignees by Category (Contract for Complaints Teammate)
+GET {{baseUrl}}/admin/maintenance/assignees?category=Plumbing+%26+Water+Supply
+Authorization: Bearer {{adminToken}}

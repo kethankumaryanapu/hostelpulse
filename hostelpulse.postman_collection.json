@@ -113,6 +113,14 @@
         "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
         "url": { "raw": "http://localhost:5000/api/v1/admin/stats", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "admin", "stats"] }
       }
+    },
+    {
+      "name": "Admin - Maintenance Assignees Suggestion",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "http://localhost:5000/api/v1/admin/maintenance/assignees?category=Plumbing+%26+Water+Supply", "protocol": "http", "host": ["localhost"], "port": "5000", "path": ["api", "v1", "admin", "maintenance", "assignees"], "query": [{ "key": "category", "value": "Plumbing & Water Supply" }] }
+      }
     }
   ]
 }

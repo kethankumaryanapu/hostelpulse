@@ -111,6 +111,8 @@ erDiagram
         string full_name
         string department
         string designation
+        jsonb specialisations "category names handled"
+        boolean is_active "active flag for auto-assignment"
         timestamp created_at
     }
 
@@ -335,3 +337,58 @@ async function getApprovedOutpassStudentIds(date, mealType) {
 - File hashes (SHA-256) are calculated before saving. Re-uploading an identical image causes an immediate rejection to prevent duplicate or fraudulent identities.
 - Images are retrieved through authenticated, role-scoped route:
   `GET /api/v1/auth/files/:filename` (Wardens can view photos of students in their block; Admins can view all; Students can view their own).
+
+---
+
+## 7. Maintenance Assignee Auto-Suggestion Contract (`/server/src/services/maintenanceContract.js`)
+
+**FOR TEAMMATE (Complaints & AI Dispatch Module):**
+To auto-suggest the optimal maintenance technician based on category (e.g., plumbing vs electrical), use either the Node.js service function or the HTTP endpoint.
+
+### 7.1 Node.js Service Import
+```javascript
+const { getSuggestedMaintenanceAssignees } = require('../services/maintenanceContract');
+
+// Usage:
+// Pass complaint category name, e.g. "Plumbing & Water Supply"
+const assignees = await getSuggestedMaintenanceAssignees("Plumbing & Water Supply");
+// Returns: Array of active maintenance personnel, sorted with `isBestMatch: true` at top!
+```
+
+### 7.2 REST API Endpoint
+`GET /api/v1/admin/maintenance/assignees?category=Plumbing+%26+Water+Supply`
+**Headers**: `Authorization: Bearer <token>` (Admin role)
+
+**Response Shape**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "staffIdNumber": "MAINT-101",
+      "fullName": "Anil Verma",
+      "department": "Facility Maintenance",
+      "designation": "Plumbing & Water Specialist",
+      "specialisations": ["Plumbing & Water Supply", "Room & Floor Hygiene"],
+      "isActive": true,
+      "email": "maintenance@hostelpulse.edu",
+      "phone": "+919777700001",
+      "isBestMatch": true
+    }
+  ],
+  "error": null
+}
+```
+
+---
+
+## 8. Frontend Complaints Analytics Mount Point Contract
+
+**FOR TEAMMATE (Complaints Analytics / Dashboard Widgets):**
+The Admin portal includes a dedicated tab: **"Complaints & AI Analytics"**.
+The component is located at:
+`client/src/portals/staff/ComplaintsAnalyticsMountPoint.jsx`
+
+Simply drop your widgets, charts, and AI triage summaries into the exported component or replace the shell with your dashboard!
+

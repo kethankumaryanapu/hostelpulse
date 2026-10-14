@@ -14,6 +14,7 @@ import {
   Building,
   Menu,
   X,
+  Bot,
 } from 'lucide-react';
 
 export function Navbar({ activeTab, setActiveTab }) {
@@ -143,6 +144,12 @@ export function Navbar({ activeTab, setActiveTab }) {
           onClick={() => setActiveTab('food')}
         >
           <Utensils size={16} /> Kitchen & Menu
+        </button>
+        <button
+          className={`btn btn-sm ${activeTab === 'complaints' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setActiveTab('complaints')}
+        >
+          <Bot size={16} /> Complaints & AI Shell
         </button>
       </>
     );
